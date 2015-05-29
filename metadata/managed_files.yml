@@ -1,0 +1,6 @@
+---
+locked_files:
+- metadata/
+- metadata/*
+processed_templates:
+- '**/*.erb'

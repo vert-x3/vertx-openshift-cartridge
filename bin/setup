@@ -1,0 +1,11 @@
+#!/bin/bash -eu
+
+case "$1" in
+  -v|--version)
+    version="$2"
+esac
+
+shopt -s dotglob
+for dir in logs; do
+    mkdir -p $OPENSHIFT_VERTX_DIR/$dir
+done

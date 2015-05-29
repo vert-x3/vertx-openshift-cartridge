@@ -1,0 +1,149 @@
+#!/bin/bash -e
+
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+
+export JAVA_HOME=$OPENSHIFT_VERTX_DIR/java
+export PATH=$JAVA_HOME/bin:$PATH
+
+export LOG="$OPENSHIFT_VERTX_LOG_DIR"out.log
+RUNNING_PID=${OPENSHIFT_HOMEDIR}/app-root/runtime/vertx.pid
+
+# Check whether the application is running.
+# The check is pretty simple: open a running pid file and check that the process
+# is alive.
+function isrunning() {
+  # Check for running app
+  if [ -f "$RUNNING_PID" ]; then
+    proc=$(cat $RUNNING_PID);
+    if /bin/ps --pid $proc 1>&2 >/dev/null;
+    then
+      return 0
+    fi
+  fi
+  return 1
+}
+
+
+function stop() {
+  client_message "Stopping Vert.x application"
+  if isrunning; then
+    kill `cat $RUNNING_PID`
+    rm $RUNNING_PID
+  fi
+}
+
+function setup_hazelcast {
+  # TODO: Figure out a better way to do this
+  if [ -f "$OPENSHIFT_VERTX_DIR/usr/shared/conf/cluster.xml" ]; then
+    cp $OPENSHIFT_VERTX_DIR/usr/shared/conf/cluster.xml $OPENSHIFT_VERTX_DIR/conf/
+  fi
+
+  if [ -f "${OPENSHIFT_REPO_DIR}/configuration/cluster.xml" ]; then
+      cp ${OPENSHIFT_REPO_DIR}/configuration/cluster.xml $OPENSHIFT_VERTX_DIR/conf/
+  fi
+
+  if [ -z "$OPENSHIFT_VERTX_HAZELCAST_CLUSTER" ]; then
+    OPENSHIFT_VERTX_HAZELCAST_CLUSTER="${OPENSHIFT_VERTX_IP}:${OPENSHIFT_VERTX_HAZELCAST_PORT}"
+  fi
+
+  OPENSHIFT_VERTX_PROXY_IP=$(ping -c 1 ${OPENSHIFT_GEAR_DNS} | awk '{ print $3 ; exit }' | sed 's/(//g' | sed 's/)//g')
+
+  pushd $OPENSHIFT_VERTX_DIR > /dev/null
+      sed -i  -e "s/\${env.OPENSHIFT_VERTX_HAZELCAST_PROXY_PORT}/${OPENSHIFT_VERTX_HAZELCAST_PROXY_PORT}/g" \
+              -e "s/\${env.OPENSHIFT_VERTX_HAZELCAST_PORT}/${OPENSHIFT_VERTX_HAZELCAST_PORT}/g" \
+              -e "s/\${env.OPENSHIFT_VERTX_PROXY_IP}/${OPENSHIFT_VERTX_PROXY_IP}/g" \
+              -e "s/\${env.OPENSHIFT_VERTX_IP}/${OPENSHIFT_VERTX_IP}/g" \
+              -e "s/\${env.OPENSHIFT_VERTX_HAZELCAST_CLUSTER}/${OPENSHIFT_VERTX_HAZELCAST_CLUSTER}/g" \
+              ./conf/cluster.xml
+  popd > /dev/null
+}
+
+function start() {
+  if isrunning; then
+      echo "The Vert.x application is already running"
+      return 0
+  fi
+
+  echo "Starting Vert.x application"
+
+  envf="$OPENSHIFT_REPO_DIR/configuration/vertx.env"
+  #  Source environment if it exists.
+  [ -f "$envf" ]  &&  source "$envf"
+
+  export VERTX_OPTS
+
+  # Setup ports and addresses
+  VERTX_OPTS="$VERTX_OPTS -Dhttp.port=$OPENSHIFT_VERTX_PORT -Dhttp.address=$OPENSHIFT_VERTX_IP"
+
+  # Setup clustering
+  if [ "$HAZELCAST_CLUSTERING" ]; then
+    setup_hazelcast
+
+    VERTX_OPTS="$VERTX_OPTS -Dvertx.cluster.public.host=${OPENSHIFT_VERTX_PROXY_IP} -Dvertx.cluster.public.port=${OPENSHIFT_VERTX_CLUSTER_PROXY_PORT}"
+
+    vertx_cluster="-cluster -cluster-port $OPENSHIFT_VERTX_CLUSTER_PORT -cluster-host $OPENSHIFT_VERTX_IP"
+  fi
+
+  # Start up vertx
+  pushd $OPENSHIFT_REPO_DIR > /dev/null
+
+    export CLASSPATH=$OPENSHIFT_VERTX_DIR/conf
+    export VERTX_JUL_CONFIG=$OPENSHIFT_VERTX_DIR/conf/logging.properties
+
+    client_message "Vert.x OPTS: $VERTX_OPTS"
+    client_message "Vert.x Cluster parameters : $vertx_cluster"
+    client_message "Vert.x Application parameter : $RUN_ARGS"
+
+    nohup java $VERTX_OPTS -jar $OPENSHIFT_REPO_DIR/application/*.jar $vertx_cluster $RUN_ARGS > $LOG 2>&1 &
+    echo $! > ${RUNNING_PID}
+
+  popd > /dev/null
+}
+
+function restart() {
+  echo "Restarting Vert.x application"
+  stop
+  start
+}
+
+function status() {
+  if isrunning; then
+    client_result "Application is running"
+  else
+    client_result "Application is either stopped or inaccessible"
+  fi
+}
+
+# Clean up any log files
+function tidy() {
+  client_message "Emptying log dir: $OPENSHIFT_VERTX_LOG_DIR"
+  shopt -s dotglob
+  rm -rf $OPENSHIFT_VERTX_LOG_DIR/*
+}
+
+function threaddump() {
+  echo "Thread dump for Vert.x application"
+
+  if ! isrunning; then
+    echo "Application is stopped"
+    exit 1
+  elif [ -f "$RUNNING_PID" ]; then
+    javapid=$(cat $RUNNING_PID);
+    kill -3 $javapid
+    client_result "Success"
+    client_result "The thread dump file will be available via:"
+    client_result "rhc tail $OPENSHIFT_APP_NAME -g $OPENSHIFT_GEAR_UUID -f $LOG -o '-n 250'"
+  else
+    echo "Failed to locate Vert.x PID File"
+  fi
+}
+
+case "$1" in
+  start)        start ;;
+  stop)         stop ;;
+  restart)      restart ;;
+  status)       status ;;
+  tidy)         tidy ;;
+  threaddump)   threaddump ;;
+  *)            exit 0
+esac

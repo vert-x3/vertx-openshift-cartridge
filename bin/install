@@ -1,0 +1,41 @@
+#!/bin/bash -e
+
+cd $OPENSHIFT_VERTX_DIR
+pwd
+
+if [ ! -d $OPENSHIFT_VERTX_DIR/jdk1.8.0_31 ]; then
+    echo "Downloading Java 8"
+    wget --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u31-b13/jdk-8u31-linux-x64.tar.gz
+    tar -zxvf jdk-8u31-linux-x64.tar.gz
+    mv $OPENSHIFT_VERTX_DIR/jdk1.8.0_31 $OPENSHIFT_VERTX_DIR/java
+    rm -f jdk-8u31-linux-x64.tar.gz
+fi
+
+mkdir -p $OPENSHIFT_VERTX_DIR/conf
+shopt -s dotglob
+
+# Copy shared configuration
+if [ -d "$OPENSHIFT_VERTX_DIR/usr/shared/conf" ]; then
+  cp -Lr $OPENSHIFT_VERTX_DIR/usr/shared/conf/* $OPENSHIFT_VERTX_DIR/conf
+fi
+
+OPENSHIFT_VERTX_PROXY_IP=$(ping -c 1 ${OPENSHIFT_GEAR_DNS} | awk '{ print $3 ; exit }' | sed 's/(//g' | sed 's/)//g')
+
+if [ -z "$OPENSHIFT_VERTX_CLUSTER_PROXY_PORT" ]; then
+  OPENSHIFT_VERTX_CLUSTER_PROXY_PORT=7600
+fi
+
+if [ -z "$OPENSHIFT_VERTX_HAZELCAST_CLUSTER" ]; then
+  OPENSHIFT_VERTX_HAZELCAST_CLUSTER="${OPENSHIFT_VERTX_IP}:${OPENSHIFT_VERTX_HAZELCAST_PORT}"
+fi
+
+pushd $OPENSHIFT_VERTX_DIR > /dev/null
+    sed -i -e "s/\${env.OPENSHIFT_VERTX_HAZELCAST_PROXY_PORT}/${OPENSHIFT_VERTX_HAZELCAST_PROXY_PORT}/g" \
+           -e "s/\${env.OPENSHIFT_VERTX_HAZELCAST_PORT}/${OPENSHIFT_VERTX_HAZELCAST_PORT}/g" \
+           -e "s/\${env.OPENSHIFT_VERTX_PROXY_IP}/${OPENSHIFT_VERTX_PROXY_IP}/g" \
+           -e "s/\${env.OPENSHIFT_VERTX_IP}/${OPENSHIFT_VERTX_IP}/g" \
+           -e "s/\${env.OPENSHIFT_VERTX_HAZELCAST_CLUSTER}/${OPENSHIFT_VERTX_HAZELCAST_CLUSTER}/g" \
+           ./conf/cluster.xml
+
+    sed -i -e "s|\${env.OPENSHIFT_VERTX_LOG_DIR}|${OPENSHIFT_VERTX_LOG_DIR}|g" ./conf/logging.properties
+popd > /dev/null

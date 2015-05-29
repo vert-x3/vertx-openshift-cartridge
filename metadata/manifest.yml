@@ -1,0 +1,60 @@
+Name: vertx
+Cartridge-Short-Name: VERTX
+Display-Name: Vert.x 3
+Description: "Vert.x is a lightweight, high performance application platform for the JVM that's designed for modern mobile, web, and enterprise applications."
+Version: '3.0'
+License: ASL 2.0
+Vendor: Vert.x
+Cartridge-Version: 0.0.1
+Cartridge-Vendor: vertx
+Source-Url: https://github.com/cescoffier/vertx-cartridge.git
+Categories:
+  - web_framework
+  - community
+  - java
+  - polyglot
+Website: http://vertx.io
+Help-Topics:
+  "Developer Center": http://vertx.io
+Publishes:
+  publish-http-url:
+    Type: "NET_TCP:httpd-proxy-info"
+  publish-gear-endpoint:
+    Type: "NET_TCP:gear-endpoint-info"
+  publish-vertx-cluster:
+    Type: "NET_TCP:vertx-cluster-info"
+Subscribes:
+  set-env:
+    Type: ENV:*
+    Required: false
+  set-vertx-cluster:
+    Type: "NET_TCP:vertx-cluster-info"
+Scaling:
+  Min: 1
+  Max: -1
+Endpoints:
+  - Private-IP-Name:   IP
+    Private-Port-Name: PORT
+    Private-Port:      8080
+    Public-Port-Name:  PROXY_PORT
+    Protocols:
+        - http
+        - ws
+    Options:
+        primary: true
+    Mappings:
+        - Frontend: ''
+          Backend: ''
+          Options:
+              websocket: true
+  - Private-IP-Name:   IP
+    Private-Port-Name: HAZELCAST_PORT
+    Private-Port:      5701
+    Public-Port-Name:  HAZELCAST_PROXY_PORT
+  - Private-IP-Name:   IP
+    Private-Port-Name: CLUSTER_PORT
+    Private-Port:      9123
+    Public-Port-Name:  CLUSTER_PROXY_PORT
+Additional-Control-Actions:
+    - threaddump
+Install-Build-Required: false
