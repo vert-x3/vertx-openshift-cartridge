@@ -4,7 +4,7 @@ This project provide a _cartridge_ for OpenShift to run Vert.x 3 applications. T
 
 ## Getting started
 
-If you don't have an account, or aren't familiar with OpenShift you can go to Getting Started with OpenShift to help guide you through setting up your environment.
+If you don't have an account, or aren't familiar with OpenShift you can go to [Getting Started with OpenShift](https://www.openshift.com/get-started/) to help guide you through setting up your environment.
 
 Once our environment is setup we can create our first application (we'll call it demo) using the `rhc` client tools.
 
@@ -94,4 +94,4 @@ Clustering is enabled from the `configuration/vertx.env` by setting:
 export HAZELCAST_CLUSTERING=true
 ```
 
-This generates the cluster metadata and provide a default `cluster.xml` file. However, if you need to customize this file copy XXX to the `configuration` directory. The cartridge is going to replace the `${env.xxx}` variables.
+This generates the cluster metadata and provide a default `cluster.xml` file. However, if you need to customize this file copy the original [cluster](https://raw.githubusercontent.com/vert-x3/vertx-openshift-cartridge/initial-work/usr/shared/conf/cluster.xml) file to the `configuration` directory. The cartridge is going to replace the `${env.xxx}` variables.
