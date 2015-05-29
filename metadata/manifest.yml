@@ -1,13 +1,13 @@
 Name: vertx
 Cartridge-Short-Name: VERTX
 Display-Name: Vert.x 3
-Description: "Vert.x is a lightweight, high performance application platform for the JVM that's designed for modern mobile, web, and enterprise applications."
+Description: "Vert.x is a tool-kit for building reactive applications on the JVM."
 Version: '3.0'
 License: ASL 2.0
 Vendor: Vert.x
 Cartridge-Version: 0.0.1
 Cartridge-Vendor: vertx
-Source-Url: https://github.com/cescoffier/vertx-cartridge.git
+Source-Url: https://github.com/vert-x3/vertx-openshift-cartridge.git
 Categories:
   - web_framework
   - community
