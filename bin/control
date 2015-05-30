@@ -2,7 +2,13 @@
 
 source $OPENSHIFT_CARTRIDGE_SDK_BASH
 
-export JAVA_HOME=$OPENSHIFT_VERTX_DIR/java
+# Compute Java 8 Home
+if [ -d /etc/alternatives/java_sdk_1.8.0 ]; then
+    export JAVA_HOME=/etc/alternatives/java_sdk_1.8.0
+else
+    export JAVA_HOME=$OPENSHIFT_VERTX_DIR/java
+fi
+
 export PATH=$JAVA_HOME/bin:$PATH
 
 export LOG="$OPENSHIFT_VERTX_LOG_DIR"out.log
