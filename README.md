@@ -95,3 +95,7 @@ export HAZELCAST_CLUSTERING=true
 ```
 
 This generates the cluster metadata and provide a default `cluster.xml` file. However, if you need to customize this file copy the original [cluster](https://raw.githubusercontent.com/vert-x3/vertx-openshift-cartridge/initial-work/usr/shared/conf/cluster.xml) file to the `configuration` directory. The cartridge is going to replace the `${env.xxx}` variables.
+
+## A note about Java 8
+
+Vert.x applications require Java 8. Openshift(.com) provides Java 8 in ` /etc/alternatives/java_sdk_1.8.0`. If you install OpenShift on your own server, you don't have to provide Java 8. If the cartridge cannot find the Java 8 in the _regular_ directory (the one listed above), it downloads and installs Java 8 alongside the application. However, this consumes lots of disk spaces and slows down the scalability feature (as Java is downloaded when the gear is created). To avoid this just installs Java 8 in `/etc/alternatives/java_sdk_8`.
