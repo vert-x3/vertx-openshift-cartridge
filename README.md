@@ -11,13 +11,13 @@ Once our environment is setup we can create our first application (we'll call it
 The cartridge is not available from OpenShift directly, so you need to pass a couple of parameters. First create your application with
 
 ```
-rhc create-app demo https://raw.githubusercontent.com/cescoffier/vertx-cartridge/master/metadata/manifest.yml
+rhc create-app demo https://raw.githubusercontent.com/vert-x3/vertx-openshift-cartridge/master/metadata/manifest.yml
 ```
 
 To create an application that scale:
 
 ```
-rhc create-app demo https://raw.githubusercontent.com/cescoffier/vertx-cartridge/master/metadata/manifest.yml -s
+rhc create-app demo https://raw.githubusercontent.com/vert-x3/vertx-openshift-cartridge/master/metadata/manifest.yml -s
 ```
 
 This will create a directory named `demo` which contain the Openshift template for your application. The cartridge does not provide any application by default.
