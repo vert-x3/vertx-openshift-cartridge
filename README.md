@@ -54,6 +54,8 @@ git push
 
 Your application should now be running !
 
+**IMPORTANT**: If you have enabled the HA support of Openshift, your application must return a valid HTTP response (such as 200) when requesting "/". Openshift is using this to detect dead application instances.
+
 ## Vert.x run options
 
 All Vert.x run options are configured with the `RUN_ARGS` variable in the `configuration/vertx.env` file. For example if you want to specify the number of instances to deploy:
@@ -98,4 +100,4 @@ This generates the cluster metadata and provide a default `cluster.xml` file. Ho
 
 ## A note about Java 8
 
-Vert.x applications require Java 8. Openshift(.com) provides Java 8 in ` /etc/alternatives/java_sdk_1.8.0`. If you install OpenShift on your own server, you don't have to provide Java 8. If the cartridge cannot find the Java 8 in the _regular_ directory (the one listed above), it downloads and installs Java 8 alongside the application. However, this consumes lots of disk spaces and slows down the scalability feature (as Java is downloaded when the gear is created). To avoid this just installs Java 8 in `/etc/alternatives/java_sdk_8`.
+Vert.x applications require Java 8. Openshift(.com) provides Java 8 in ` /etc/alternatives/java_sdk_1.8.0`. If you install OpenShift on your own server, you don't have to provide Java 8. If the cartridge cannot find the Java 8 in the _regular_ directory (the one listed above), it downloads and installs Java 8 alongside the application. However, this consumes lots of disk space and slows down the scalability feature (as Java is downloaded when the gear is created). To avoid this just installs Java 8 in `/etc/alternatives/java_sdk_8`.
