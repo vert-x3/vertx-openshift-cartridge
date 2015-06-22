@@ -9,6 +9,7 @@ Cartridge-Version: 0.0.1
 Cartridge-Vendor: vertx
 Source-Url: https://github.com/vert-x3/vertx-openshift-cartridge.git
 Categories:
+  - service
   - web_framework
   - community
   - java
@@ -52,11 +53,15 @@ Endpoints:
     Private-Port-Name: HAZELCAST_PORT
     Private-Port:      5701
     Public-Port-Name:  HAZELCAST_PROXY_PORT
-    
+    Protocols:
+        - tcp
+
   - Private-IP-Name:   IP
     Private-Port-Name: CLUSTER_PORT
     Private-Port:      9123
     Public-Port-Name:  CLUSTER_PROXY_PORT
+    Protocols:
+        - tcp
 Additional-Control-Actions:
     - threaddump
 Install-Build-Required: false
