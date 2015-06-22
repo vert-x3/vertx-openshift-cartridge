@@ -47,10 +47,12 @@ Endpoints:
           Backend: ''
           Options:
               websocket: true
+
   - Private-IP-Name:   IP
     Private-Port-Name: HAZELCAST_PORT
     Private-Port:      5701
     Public-Port-Name:  HAZELCAST_PROXY_PORT
+    
   - Private-IP-Name:   IP
     Private-Port-Name: CLUSTER_PORT
     Private-Port:      9123
