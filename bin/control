@@ -38,6 +38,16 @@ function stop() {
   fi
 }
 
+function setup_logging {
+    if [ -f "$OPENSHIFT_VERTX_DIR/usr/shared/conf/logging.properties" ]; then
+      cp $OPENSHIFT_VERTX_DIR/usr/shared/conf/logging.properties $OPENSHIFT_VERTX_DIR/conf/
+    fi
+
+    if [ -f "${OPENSHIFT_REPO_DIR}/configuration/logging.properties" ]; then
+        cp $OPENSHIFT_REPO_DIR/configuration/logging.properties $OPENSHIFT_VERTX_DIR/conf/
+    fi
+}
+
 function setup_hazelcast {
   # TODO: Figure out a better way to do this
   if [ -f "$OPENSHIFT_VERTX_DIR/usr/shared/conf/cluster.xml" ]; then
@@ -89,6 +99,8 @@ function start() {
 
     vertx_cluster="-cluster -cluster-port $OPENSHIFT_VERTX_CLUSTER_PORT -cluster-host $OPENSHIFT_VERTX_IP"
   fi
+
+  setup_logging
 
   # Start up vertx
   pushd $OPENSHIFT_REPO_DIR > /dev/null
