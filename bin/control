@@ -93,7 +93,7 @@ function start() {
   # Start up vertx
   pushd $OPENSHIFT_REPO_DIR > /dev/null
 
-    export CLASSPATH=$OPENSHIFT_VERTX_DIR/conf
+    export CLASSPATH=$OPENSHIFT_VERTX_DIR/conf/cluster.xml:$OPENSHIFT_VERTX_DIR/conf
     export VERTX_JUL_CONFIG=$OPENSHIFT_VERTX_DIR/conf/logging.properties
 
     client_message "Vert.x OPTS: $VERTX_OPTS"
