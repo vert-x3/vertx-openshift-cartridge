@@ -72,6 +72,27 @@ You can configure the JVM parameters from the `configuration/vertx.env` file. Th
 export VERTX_OPTS="-Dfoo=bar"
 ```
 
+## Customize logging
+
+You can provide your own `logging.properties` file in the `configuration` directory. For instance:
+
+```
+handlers=java.util.logging.ConsoleHandler,java.util.logging.FileHandler
+java.util.logging.SimpleFormatter.format=%5$s %6$s\n
+java.util.logging.ConsoleHandler.formatter=java.util.logging.SimpleFormatter
+java.util.logging.ConsoleHandler.level=INFO
+java.util.logging.FileHandler.level=INFO
+java.util.logging.FileHandler.formatter=org.vertx.java.core.logging.impl.VertxLoggerFormatter
+
+# Put the log in the system temporary directory
+java.util.logging.FileHandler.pattern=./vertx.log
+
+.level=INFO
+org.vertx.level=INFO
+com.hazelcast.level=INFO
+io.netty.util.internal.PlatformDependent.level=SEVERE
+```
+
 ## Retrieving the log and thread dump
 
 You can retrieve the log file of your application using:
