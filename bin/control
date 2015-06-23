@@ -111,9 +111,8 @@ function start() {
     client_message "Vert.x OPTS: $VERTX_OPTS"
     client_message "Vert.x Cluster parameters : $vertx_cluster"
     client_message "Vert.x Application parameter : $RUN_ARGS"
-    client_message "Global classpath : $CLASSPATH"
 
-    nohup java -classpath $CLASSPATH $VERTX_OPTS -jar $OPENSHIFT_REPO_DIR/application/*.jar $vertx_cluster $RUN_ARGS > $LOG 2>&1 &
+    nohup java $VERTX_OPTS -jar $OPENSHIFT_REPO_DIR/application/*.jar $vertx_cluster $RUN_ARGS > $LOG 2>&1 &
     echo $! > ${RUNNING_PID}
 
   popd > /dev/null
