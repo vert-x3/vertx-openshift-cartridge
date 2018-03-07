@@ -1,4 +1,6 @@
-OpenShift Cartridge for Vert.x 3
+# OpenShift Cartridge for Vert.x 3
+
+**IMPORTANT:** OpenShift v2 being EOL, this project is retired. Please check OpenShift v3.
 
 This project provide a _cartridge_ for OpenShift to run Vert.x 3 applications. The _cartridge_ is based on a _fat jar_ approach, meaning that you provide a _fat jar_ embedding your application.
 
